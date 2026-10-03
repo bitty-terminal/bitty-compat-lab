@@ -605,8 +605,12 @@ fn verify_corpus(path_rel: &str) -> Result<(usize, usize, u64), String> {
 /// deleted product test fails loudly on both sides instead of vanishing.
 fn verify_test_present(file_rel: &str, name: &str) -> Result<(), String> {
     let fixture = workspace_root().join("fixtures/product-test-presence.txt");
-    let text = std::fs::read_to_string(&fixture)
-        .map_err(|e| format!("test-presence fixture {} unreadable: {e}", fixture.display()))?;
+    let text = std::fs::read_to_string(&fixture).map_err(|e| {
+        format!(
+            "test-presence fixture {} unreadable: {e}",
+            fixture.display()
+        )
+    })?;
     let mut pairs = 0usize;
     for line in text.lines() {
         let line = line.trim();
