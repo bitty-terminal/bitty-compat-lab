@@ -1,0 +1,42 @@
+[package]
+name = "bitty-compat-lab"
+description = "Compat lab harness owner — headless bounded vttest/differential (CTX-0078)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords = ["terminal", "compat", "bitty"]
+categories = ["development-tools"]
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+# W-105 relocation (bitty CTX-0931): this suite no longer lives in the bitty
+# product workspace. bitty is consumed as an external, immutable production
+# revision (W-75 pin discipline): a git dependency at an exact commit, never a
+# path dependency into a mutable checkout, never a branch or tag ref.
+# Tested production revision: bitty@9bc73207ab559d4d5de4ef283a4056dc8857de01
+# (origin/main at move time). Pin bumps are owned, reviewed changes here.
+bitty-vt = { git = "https://github.com/bitty-terminal/bitty", rev = "9bc73207ab559d4d5de4ef283a4056dc8857de01" }
+bitty-term-state = { git = "https://github.com/bitty-terminal/bitty", rev = "9bc73207ab559d4d5de4ef283a4056dc8857de01" }
+# CTX-0573 review F6: the `runtime` oracle engine drives the real app path so
+# OSC 10/11 query replies and mouse coordinate emission — deliberately inert in
+# terminal state — are diffed against the corpus. `bitty-runtime` does not
+# depend on this crate, so the edge is acyclic; this crate is `publish = false`
+# devtooling, so no external dependency enters the workspace that the runtime
+# does not already build.
+bitty-runtime = { git = "https://github.com/bitty-terminal/bitty", rev = "9bc73207ab559d4d5de4ef283a4056dc8857de01" }
+bitty-platform = { git = "https://github.com/bitty-terminal/bitty", rev = "9bc73207ab559d4d5de4ef283a4056dc8857de01" }
+
+[dev-dependencies]
+bitty-pty = { git = "https://github.com/bitty-terminal/bitty", rev = "9bc73207ab559d4d5de4ef283a4056dc8857de01" }
+# M1-29 (CTX-0689): A5 selection gates assert the presentation-layer contract
+# in `bitty-ui`; dev-only edge, no product graph change (`bitty-ui` depends
+# solely on `bitty-term-state`, so this edge is acyclic).
+bitty-ui = { git = "https://github.com/bitty-terminal/bitty", rev = "9bc73207ab559d4d5de4ef283a4056dc8857de01" }
+# CTX-0922: the OSC 7/133 read view (`ShellIntegration`) lives only in
+# `bitty-rich::shell`; dev-only edge, already in the runtime graph.
+bitty-rich = { git = "https://github.com/bitty-terminal/bitty", rev = "9bc73207ab559d4d5de4ef283a4056dc8857de01" }
