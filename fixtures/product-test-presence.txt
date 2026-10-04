@@ -1,0 +1,20 @@
+# Product test-presence snapshot (W-105 relocation, bitty CTX-0931)
+#
+# Cross-checked by `crates/bitty-compat-lab/src/report.rs`
+# (`verify_test_present`): every report row with a test method must name a
+# `file<TAB>test-fn` pair listed here.
+#
+# Source: bitty repository test files at the tested production revision
+# recorded in `crates/bitty-compat-lab/Cargo.toml`. Those files stay with
+# their owning product crates; this list is the vendored snapshot this suite
+# checks against.
+#
+# Freshness is enforced by the bitty-side thin gate
+# (`bitty/scripts/check-compat-fixture-freshness.sh`), which fails when a
+# listed test file no longer contains its named test. Lines starting with
+# `#` are comments.
+crates/bitty-rich/tests/kitty_5522_nongoal.rs	kitty_5522_locked_as_inert_nongoal
+crates/bitty-platform/tests/clipboard_sync.rs	headless_set_syncs_clipboard_and_primary
+crates/bitty-runtime/tests/kitty_images_present.rs	admissible_payload_fails_closed_until_wiring
+crates/bitty-runtime/tests/scrollback_cap.rs	configured_scrollback_cap_bounds_retained_lines
+crates/bitty-runtime/tests/scrollback_search_selection_persistence.rs	search_finds_in_scrollback_and_live_grid_headless

@@ -1,0 +1,17 @@
+# Live-display scenario names (W-105 relocation, bitty CTX-0931)
+#
+# Cross-checked by `crates/bitty-compat-lab/tests/report.rs`
+# (`report_local_rows_map_to_live_scenario_tests`): every report row with a
+# live-display method must name a scenario listed here.
+#
+# Source: bitty repository,
+# `crates/bitty-platform/tests/clipboard_live.rs`, at the tested production
+# revision recorded in `crates/bitty-compat-lab/Cargo.toml`. That file stays
+# with `bitty-platform` in the product repository; this list is the vendored
+# scenario-name snapshot this suite checks against.
+#
+# Freshness is enforced by the bitty-side thin gate
+# (`bitty/scripts/check-compat-fixture-freshness.sh`), which fails when the
+# source file gains or loses a `fn live_<scenario>_` test. One scenario per
+# line; lines starting with `#` are comments.
+clipboard
