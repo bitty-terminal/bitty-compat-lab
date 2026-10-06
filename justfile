@@ -1,4 +1,4 @@
-# Metadata-only gates. These are not Rust/Lua product evidence.
+# Metadata gates plus Rust suite gates. Metadata gates are not product evidence.
 prettier_version := "3.9.6"
 markdownlint_version := "0.23.1"
 actionlint_version := "1.7.12"
@@ -10,7 +10,8 @@ markdownlint:
     bunx --bun markdownlint-cli2@{{markdownlint_version}}
 
 metadata:
-    test -s README.md && test -s AGENTS.md && test -s TODO.md && test -s repo.toml
+    test -s README.md && test -s AGENTS.md && test -s repo.toml
+    test ! -e TODO.md
     test -s .carryctx/config.toml
     python3 -c 'import tomllib; from pathlib import Path; [tomllib.loads(p.read_text()) for p in [Path("repo.toml"), Path(".carryctx/config.toml")]]'
 
@@ -96,7 +97,7 @@ workflow-import:
     git fetch origin refs/heads/carryctx-snapshots:refs/remotes/origin/carryctx-snapshots
     carryctx import --from-git refs/remotes/origin/carryctx-snapshots
 
-# No source exists: fail rather than claim product verification.
+# Verification pending (CTX-0004): fail rather than claim product verification.
 product:
-    @echo 'Blocked: approved source and product gates have not landed.' >&2
+    @echo 'Blocked: CTX-0004 independent verification has not landed.' >&2
     @exit 1

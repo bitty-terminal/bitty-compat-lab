@@ -1,6 +1,6 @@
 # bitty-compat-lab
 
-Independent compatibility validation suite for Bitty (W-105 relocation, bitty CTX-0931). Read [AGENTS](AGENTS.md) and [TODO](TODO.md).
+Independent compatibility validation suite for Bitty (W-105 relocation, bitty CTX-0931). Read [AGENTS](AGENTS.md).
 
 - Suite: `crates/bitty-compat-lab` — headless, bounded compatibility lab
   (release-matrix suites, M1 golden suites, differential oracle, compare and
@@ -22,4 +22,4 @@ Independent compatibility validation suite for Bitty (W-105 relocation, bitty CT
 
 Prerequisite: W-75 / bitty-docs CTX-0265, Issue #404, and W-105 Core CTX-0931. Preserve required CI and pin the production revision under test.
 
-CTX-0001 -> CTX-0002 -> CTX-0003 -> CTX-0004 maps to Issues #4 -> #3 -> #2 -> #1. CTX-0001 (bootstrap) is complete: metadata gates, independent review, first publication, redacted CarryCtx snapshot and branch protection are recorded. Suite migration landed in 6887d08 (#7) under CTX-0003; acceptance (including CTX-0004 independent verification) belongs to the owning tasks.
+CTX-0001 -> CTX-0002 -> CTX-0003 -> CTX-0004 maps to Issues #4 -> #3 -> #2 -> #1. CTX-0001 (bootstrap) is complete: metadata gates, independent review, first publication, redacted CarryCtx snapshot and branch protection are recorded. Suite migration landed in 6887d08 (#7) under CTX-0003; acceptance (including CTX-0004 independent verification with different reviewer, platform evidence, and docs sync) belongs to the owning tasks. Task management lives in CarryCtx: CTX-0001 completed, CTX-0002 in progress, CTX-0003 planned, CTX-0004 planned.
