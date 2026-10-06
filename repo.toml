@@ -13,4 +13,4 @@ rust_version = "1.85"
 status = "metadata-only"
 
 [contracts]
-status = "pending W-75; no migrated suite"
+status = "W-75 accepted (bitty-docs CTX-0265 #404); suite migrated in 6887d08; CTX-0002 in progress"

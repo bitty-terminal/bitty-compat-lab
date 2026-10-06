@@ -1,5 +1,5 @@
 # Compatibility lab guidance
 
-Metadata-only scaffold; no test migration authorized. Read repo.toml, TODO, CarryCtx, W-75 and accepted platform/compatibility/security contracts. External suite must pin the actual production revision and preserve required CI and evidence paths; scaffold success is not compatibility evidence.
+External validation suite; suite migrated, pinned-revision. Read repo.toml, TODO, CarryCtx, W-75 and accepted platform/compatibility/security contracts. External suite must pin the actual production revision and preserve required CI and evidence paths; scaffold success is not compatibility evidence.
 
 English only; no hardcoded host layout/URLs. Rust starts 0.0.1, edition 2024, Core MSRV. Use just gates. CTX-0001 -> 0002 -> 0003 -> 0004 orders bootstrap, contract readiness, suite migration and independent verification. Named sessions, exact scopes, task worktrees after first commit, managed hooks required. Bootstrap metadata acceptance recorded (independent review, publication, snapshot, branch protection). No commit/push/release without task authority; publish redacted snapshots only. No unowned process kills, silent installs or destructive cleanup. Preserve unrelated work; record platform test coverage, source revisions and canonical documentation synchronization.
