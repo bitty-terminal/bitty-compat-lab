@@ -2,7 +2,7 @@
 name = "bitty-compat-lab"
 kind = "tooling"
 lang = "rust"
-role = "candidate external compatibility suite; metadata-only scaffold"
+role = "external compatibility validation suite; migrated, pinned-revision"
 owner = "bitty-core"
 docs = "bitty-terminal-docs"
 
@@ -10,7 +10,7 @@ docs = "bitty-terminal-docs"
 version = "0.0.1"
 edition = "2024"
 rust_version = "1.85"
-status = "metadata-only"
+status = "migrated"
 
 [contracts]
 status = "W-75 accepted (bitty-docs CTX-0265 #404); suite migrated in 6887d08; CTX-0002 in progress"
