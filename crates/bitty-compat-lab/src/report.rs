@@ -431,7 +431,7 @@ pub const ROWS: &[Row] = &[
         status: Status::Ci,
         method: Method::Test {
             file: "crates/bitty-runtime/tests/kitty_images_present.rs",
-            name: "admissible_payload_fails_closed_until_wiring",
+            name: "admissible_rgba_stores_places_and_advances_cursor",
         },
         note: "headless compositor paint; no GPU/display required",
     },
