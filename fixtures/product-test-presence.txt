@@ -15,6 +15,6 @@
 # `#` are comments.
 crates/bitty-rich/tests/kitty_5522_nongoal.rs	kitty_5522_locked_as_inert_nongoal
 crates/bitty-platform/tests/clipboard_sync.rs	headless_set_syncs_clipboard_and_primary
-crates/bitty-runtime/tests/kitty_images_present.rs	admissible_payload_fails_closed_until_wiring
+crates/bitty-runtime/tests/kitty_images_present.rs	admissible_rgba_stores_places_and_advances_cursor
 crates/bitty-runtime/tests/scrollback_cap.rs	configured_scrollback_cap_bounds_retained_lines
 crates/bitty-runtime/tests/scrollback_search_selection_persistence.rs	search_finds_in_scrollback_and_live_grid_headless
