@@ -173,24 +173,26 @@ pub struct CompareReport {
     pub outcomes: Vec<CompareOutcome>,
 }
 
-fn list_sorted(dir: &std::path::Path) -> Vec<PathBuf> {
-    let Ok(entries) = fs::read_dir(dir) else {
-        return Vec::new();
-    };
+fn list_sorted(dir: &std::path::Path) -> Result<Vec<PathBuf>, String> {
+    let entries = fs::read_dir(dir).map_err(|e| format!("read_dir {dir:?}: {e}"))?;
     let mut out = Vec::new();
-    for entry in entries.flatten() {
-        if !entry.file_type().is_ok_and(|ft| ft.is_file()) {
-            continue;
-        }
+    for entry in entries {
+        let entry = entry.map_err(|e| format!("read_dir entry in {dir:?}: {e}"))?;
         let path = entry.path();
         if path.extension().and_then(|e| e.to_str()) != Some("json") {
+            continue;
+        }
+        let ft = entry
+            .file_type()
+            .map_err(|e| format!("file_type {path:?}: {e}"))?;
+        if !ft.is_file() {
             continue;
         }
         out.push(path);
     }
     out.sort();
     out.truncate(MAX_SNAPSHOTS);
-    out
+    Ok(out)
 }
 
 fn parse_hex4(bytes: &[u8]) -> Option<u16> {
@@ -471,7 +473,7 @@ fn corpus_path_for_rel(corpus_rel: &str) -> PathBuf {
 pub fn load_bitty_dumps() -> Result<Vec<BittyDump>, String> {
     for dir in bitty_snapshot_dir_candidates() {
         if dir.is_dir() {
-            let files = list_sorted(&dir);
+            let files = list_sorted(&dir)?;
             if files.is_empty() {
                 continue;
             }
@@ -516,7 +518,9 @@ fn load_reference_texts_for_corpus(corpus_rel: &str) -> Vec<(String, String)> {
             if !dir.is_dir() {
                 continue;
             }
-            let files = list_sorted(&dir);
+            let Ok(files) = list_sorted(&dir) else {
+                continue;
+            };
             for path in files {
                 let bytes = match fs::read(&path) {
                     Ok(b) => b,
