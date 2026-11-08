@@ -1261,10 +1261,15 @@ pub fn unescape_bytes(value: &str) -> Vec<u8> {
             Some('e') => out.push(0x1b),
             Some('\\') => out.push(b'\\'),
             Some('x') => {
-                let hi = chars.next().and_then(|c| c.to_digit(16));
-                let lo = chars.next().and_then(|c| c.to_digit(16));
+                let mut lookahead = chars.clone();
+                let hi = lookahead.next().and_then(|c| c.to_digit(16));
+                let lo = lookahead.next().and_then(|c| c.to_digit(16));
                 match (hi, lo) {
-                    (Some(hi), Some(lo)) => out.push(((hi << 4) | lo) as u8),
+                    (Some(hi), Some(lo)) => {
+                        let _ = chars.next();
+                        let _ = chars.next();
+                        out.push(((hi << 4) | lo) as u8);
+                    }
                     _ => {
                         out.push(b'\\');
                         out.push(b'x');

@@ -179,20 +179,30 @@ fn list_sorted(dir: &std::path::Path) -> Vec<PathBuf> {
     };
     let mut out = Vec::new();
     for entry in entries.flatten() {
-        let path = entry.path();
-        if !path.is_file() {
+        if !entry.file_type().is_ok_and(|ft| ft.is_file()) {
             continue;
         }
+        let path = entry.path();
         if path.extension().and_then(|e| e.to_str()) != Some("json") {
             continue;
-        }
-        if out.len() >= MAX_SNAPSHOTS {
-            break;
         }
         out.push(path);
     }
     out.sort();
+    out.truncate(MAX_SNAPSHOTS);
     out
+}
+
+fn parse_hex4(bytes: &[u8]) -> Option<u16> {
+    if bytes.len() < 4 {
+        return None;
+    }
+    let mut val = 0u16;
+    for &b in &bytes[..4] {
+        let digit = (b as char).to_digit(16)? as u16;
+        val = (val << 4) | digit;
+    }
+    Some(val)
 }
 
 fn parse_quoted_string(input: &str) -> Option<(String, &str)> {
@@ -223,6 +233,18 @@ fn parse_quoted_string(input: &str) -> Option<(String, &str)> {
                     out.push('\\');
                     i += 2;
                 }
+                b'/' => {
+                    out.push('/');
+                    i += 2;
+                }
+                b'b' => {
+                    out.push('\u{0008}');
+                    i += 2;
+                }
+                b'f' => {
+                    out.push('\u{000c}');
+                    i += 2;
+                }
                 b'n' => {
                     out.push('\n');
                     i += 2;
@@ -236,14 +258,27 @@ fn parse_quoted_string(input: &str) -> Option<(String, &str)> {
                     i += 2;
                 }
                 b'u' => {
-                    if i + 5 >= bytes.len() {
+                    if i + 6 > bytes.len() {
                         return None;
                     }
-                    let hex = &input[i + 2..i + 6];
-                    let code = u32::from_str_radix(hex, 16).ok()?;
-                    let ch = char::from_u32(code)?;
-                    out.push(ch);
-                    i += 6;
+                    let code = u32::from(parse_hex4(&bytes[i + 2..i + 6])?);
+                    if (0xD800..=0xDBFF).contains(&code) {
+                        if i + 12 > bytes.len() || bytes[i + 6] != b'\\' || bytes[i + 7] != b'u' {
+                            return None;
+                        }
+                        let low = u32::from(parse_hex4(&bytes[i + 8..i + 12])?);
+                        if !(0xDC00..=0xDFFF).contains(&low) {
+                            return None;
+                        }
+                        let combined = 0x10000 + (((code - 0xD800) << 10) | (low - 0xDC00));
+                        let ch = char::from_u32(combined)?;
+                        out.push(ch);
+                        i += 12;
+                    } else {
+                        let ch = char::from_u32(code)?;
+                        out.push(ch);
+                        i += 6;
+                    }
                 }
                 _ => return None,
             }
@@ -258,11 +293,21 @@ fn parse_quoted_string(input: &str) -> Option<(String, &str)> {
 }
 
 fn find_key_value_start<'a>(json: &'a str, key: &str) -> Option<&'a str> {
-    let needle = format!("\"{key}\"");
-    let pos = json.find(&needle)?;
-    let rest = &json[pos + needle.len()..];
-    let colon = rest.find(':')?;
-    Some(&rest[colon + 1..])
+    let mut rest = json;
+    while let Some(quote_pos) = rest.find('"') {
+        let quoted = &rest[quote_pos..];
+        let (parsed, after_quote) = parse_quoted_string(quoted)?;
+        let trimmed = after_quote.trim_start();
+        if let Some(after_colon) = trimmed.strip_prefix(':') {
+            if parsed == key {
+                return Some(after_colon);
+            }
+            rest = after_colon;
+        } else {
+            rest = trimmed;
+        }
+    }
+    None
 }
 
 fn extract_string_field(json: &str, key: &str) -> Option<String> {
@@ -809,6 +854,28 @@ mod tests {
         assert_eq!(extract_string_field(json, "category").unwrap(), "vt");
         assert_eq!(extract_number_field(json, "bytes_len").unwrap(), 21);
         assert!(extract_bool_field(json, "visible").unwrap());
+    }
+
+    #[test]
+    fn json_parser_handles_unicode_surrogates_and_skips_keys_in_string_values() {
+        // Malformed \u followed by multi-byte UTF-8 must return None, never panic.
+        assert!(parse_quoted_string("\"\\u12é\"").is_none());
+
+        // Standard JSON escapes (\/, \b, \f) and UTF-16 surrogate pairs (\uD83D\uDE00 -> 😀).
+        let (decoded, rem) = parse_quoted_string("\"a\\/b\\bc\\fd\\uD83D\\uDE00\" tail").unwrap();
+        assert_eq!(decoded, "a/b\u{0008}c\u{000c}d😀");
+        assert_eq!(rem, " tail");
+
+        // Embedded `"row": 99` and `"visible": false` inside `"title"` string value must not
+        // shadow the real object keys that appear later in the JSON document.
+        let json = "{\"title\": \"fake \\\"row\\\": 99, \\\"visible\\\": false\", \"row\": 3, \"visible\": true}";
+        assert_eq!(extract_number_field(json, "row"), Some(3));
+        assert_eq!(extract_bool_field(json, "visible"), Some(true));
+
+        // oracle::unescape_bytes must not drop characters following an invalid \x escape.
+        assert_eq!(crate::oracle::unescape_bytes("\\xZZok"), b"\\xZZok");
+        assert_eq!(crate::oracle::unescape_bytes("\\x4Gok"), b"\\x4Gok");
+        assert_eq!(crate::oracle::unescape_bytes("\\x41ok"), b"Aok");
     }
 
     #[test]

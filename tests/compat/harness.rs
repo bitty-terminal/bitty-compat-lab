@@ -153,19 +153,18 @@ pub fn list_corpus(category: &str) -> Vec<std::path::PathBuf> {
         return out;
     };
     for entry in entries.flatten() {
-        let path = entry.path();
-        if !path.is_file() {
+        if !entry.file_type().is_ok_and(|ft| ft.is_file()) {
             continue;
         }
+        let path = entry.path();
         let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
         if ext != "bin" && ext != "txt" && ext != "log" {
             continue;
         }
-        if out.len() >= MAX_CORPORA_PER_CATEGORY {
-            break;
-        }
         out.push(path);
     }
+    out.sort();
+    out.truncate(MAX_CORPORA_PER_CATEGORY);
     out
 }
 
